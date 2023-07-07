@@ -168,7 +168,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/hoohan/digital-garden/',
+            'https://github.com/hoohan/digital-garden/tree/main',
           remarkPlugins: [math],
           rehypePlugins: [katex],
           // showLastUpdateAuthor: true,
@@ -179,7 +179,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/hoohan/digital-garden/',
+            'https://github.com/hoohan/digital-garden/tree/main',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
