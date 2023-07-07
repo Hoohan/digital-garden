@@ -1,0 +1,192 @@
+---
+title: 线性代数4：A的LU分解、矩阵的转置与置换
+date: 2020-03-01 16:22:45
+---
+
+# 线性代数4：A的LU分解、矩阵的转置与置换
+
+## Introduction
+本页面内容均是从听课的笔记整理而来。不保证数学上的绝对准确，也就是均为个人理解。  
+如果正在阅读此文章的你有更好的想法或者更好的理解，欢迎你发邮件到<work@hoohan.cn>，期待与你交流！  
+**课程信息：**   
+威廉·吉尔伯特·斯特朗(William Gilbert Strang)教授的线性代数公开课。  
+[麻省理工公开课 线性代数 MIT 18.06 Linear Algebra, Spring 2005 中英双语字幕](https://www.bilibili.com/video/av15463995)
+
+----------
+
+## Lecture 4: A=LU, Transposes and Permutations  
+**第四课 A的LU分解、矩阵的转置与置换**  
+  
+**Part 1 A=LU是高斯消元的简洁形态（无行变换）**  
+*The thing about elimination is the right way to understand what the matrix has got.*  
+矩阵消元的目的就是为了正确认识矩阵的概念。  
+*A=LU is the most basic factorization of a matrix.*  
+A=LU是最基本的矩阵分解。  
+既然我们要研究的是A=LU分解，我们就要思考一个问题：A和U到底有什么关系？  
+
+$$
+EA=U \\ 
+A=LU \\
+\Rightarrow
+L=E^{-1}
+$$
+
+举个例子
+
+$$
+EA=U \Rightarrow
+\left[
+    \begin{matrix}
+        1 & 0\\
+        -4 & 1
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        2 & 1\\
+        8 & 7
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        2 & 1\\
+        0 & 3
+    \end{matrix}
+\right]
+\\
+A=LU \Rightarrow
+\left[
+    \begin{matrix}
+        2 & 1\\
+        8 & 7
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        1 & 0\\
+        4 & 1
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        2 & 1\\
+        0 & 3
+    \end{matrix}
+\right]
+= 
+\left[
+    \begin{matrix}
+        1 & 0\\
+        4 & 1
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        2 & 0\\
+        0 & 3
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 1/2\\
+        0 & 1
+    \end{matrix}
+\right]
+=LDU
+\\
+$$
+<center>L为下三角矩阵(Lower triangular)，D为对角矩阵(Diagonal)</center>  
+
+这便是A=LU分解。  
+一个问题接踵而来：为什么我们要采用A=LU分解这种看起来“多此一举”的形式呢？  
+因为A=LU的形式更优。  
+这个答案需要在三阶方阵的消元过程中寻找。  
+我们首先假设有如下消元过程（无行变换）：  
+
+$$
+E_{32}E_{31}E_{21}=U \\
+\Downarrow \\
+A=E_{21}^{-1}E_{31}^{-1}E_{32}^{-1}U=LU\\
+$$
+
+$$
+E_{32} = 
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\ 
+        0 & 1 & 0\\
+        0 & -5 & 1
+    \end{matrix}
+\right] \\ 
+E_{31}=I \\ 
+E_{21} = 
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\ 
+        -2 & 1 & 0\\
+        0 & 0 & 1
+    \end{matrix}
+\right]
+$$
+
+经过计算，我们可以得到：
+
+$$
+E=
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\ 
+        -2 & 1 & 0\\
+        10 & -5 & 1
+    \end{matrix}
+\right]
+ \ \ 
+L=
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\ 
+        2 & 1 & 0\\
+        0 & 5 & 1
+    \end{matrix}
+\right]
+$$
+
+我们观察矩阵E，会发现左下角有一个“10”，再观察矩阵L，我们就能发现L忠实记录了消元的乘数，且不会有其他因为矩阵乘法算法得出的其他数字干扰。  
+也正因为L的这种特性，我们就可以不费力地寻找出L。  
+**矩阵消元的计算消耗**  
+对于A矩阵(n×n)，计算消耗为$1/3n^3$.  
+对于b矩阵，计算消耗为$n^2$.  
+
+-----------
+
+**Part 2 转置和置换**  
+在前面我们已经知道所谓置换矩阵就是做过行交换的单位矩阵。  
+由此易得：  
+- 对于3×3的矩阵，有6种置换矩阵。  
+- 对于4×4的矩阵，有24种置换矩阵。  
+- 以此类推，n阶矩阵置换矩阵的个数是n!个。
+- 且$P^{-1}=P^T \ , \ P^TP=I$  
+
+有了置换矩阵，高斯消元也就有了完整的矩阵形式：
+
+$$
+PA=LU
+$$
+  
+转置的概念就是将原有矩阵的行变列、列变行。  
+由此引入一种特殊的矩阵：对称矩阵(Symmetic matrix)，对称矩阵的性质就是它本身的转置就是它本身。  
+对称阵有如下性质：
+
+$$
+A^T=A
+$$
+
+此外，制造一个对称阵非常简单，如何制造对称矩阵呢？  
+答案是使用随意一个长方矩阵(R,Rectangluar)，使用长方矩阵乘上它的转置即可得到对称矩阵，也就是说$RR^T$恒对称。  
+下面给出一个简单的证明：  
+
+$$
+(RR^T)^T=R^T R^{TT}=R^TR
+$$

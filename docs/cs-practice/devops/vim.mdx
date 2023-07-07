@@ -1,0 +1,264 @@
+---
+id: vim
+title: vim编辑器
+tags:
+  - vim
+  - Getting started
+---
+
+# vim编辑器
+
+## 设计理念
+
+学习vim之前，先知道其设计理念是很重要的，不仅有助于记忆，而且还能举一反三。
+
+vim命令的设计理念是**组合(Composeability)**。
+
+例如："d" 表示删除，"j" 移动到下一行，组合 "dj" 表示删除当前行和下一行。
+
+## 模式及其切换
+
+vim是模式编辑器，有六种基本模式，六种附加模式。其中，附加模式是基本模式的变体。
+
+vim最常用的有三种模式：普通模式(Normal Mode)、插入模式(Insert Mode)、视觉模式(Visual Mode)。
+
+本文不区分普通模式、命令模式抑或是“底线命令”模式(Command Mode/Command-line Mode/Cmdline Mode)。关于vim模式的更多信息，请翻阅 [Vim documentation: vim_faq](https://vimdoc.sourceforge.net/htmldoc/vimfaq.html) 中 `4.4. Where can I read about the various modes in Vim?` 章节。
+
+| 命令    | 助记   | 作用                                    |
+| ------- | ------ | --------------------------------------- |
+| [Esc]   | -      | 切换到普通模式                          |
+| i       | insert | 在光标前插入                            |
+| a       | append | 在光标后插入                            |
+| o       | open   | (open a new line)下方另起一行在行首插入 |
+| I       | -      | 在行首插入                              |
+| A       | -      | 在行尾插入                              |
+| O       | -      | 上方另起一行在行首插入                  |
+| v       | visual | 进入行选视觉模式                        |
+| [Ctrl]v | -      | 进入列选视觉模式                        |
+
+
+## 移动光标
+
+移动光标是入门vim的第一关。各式各样的移动指令和其他命令相组合，是vim强大能力的来源。
+
+### 单字符移动
+
+基本的上下作用移动，vim使用k/j/h/l来实现。J可以看作向下的箭头。k在j的旁边，即为向上。h与l分列两边，分别为向左、向右。此外，向下移动一个字符，作为使用频率最高的一个命令，放在j键是很合理的。
+
+| 命令 | 作用             |
+| ---- | ---------------- |
+| j    | 向下移动一个字符 |
+| k    | 向上移动一个字符 |
+| h    | 向左移动一个字符 |
+| l    | 向右移动一个字符 |
+
+### 短距移动
+
+部分命令可以移动到一些特殊位置。
+
+| 命令 | 助记     | 作用                                      |
+| ---- | -------- | ----------------------------------------- |
+| ^    | -        | 移动到行首                                |
+| $    | -        | 移动到行尾                                |
+| w    | word     | (forward one word)移动到下一个单词的词首  |
+| b    | backward | (backward ont word)移动到上一个单词的词首 |
+
+### 跨行移动
+
+输入数字进行组合可以移动多行或者移动到指定行。
+
+| 命令 | 作用             |
+| ---- | ---------------- |
+| [n]- | 向上移动n行      |
+| [n]+ | 向下移动n行      |
+| :[n] | 移动到第n行      |
+| [n]G | 移动到第n行      |
+| gg   | 移动到文件的首行 |
+| G    | 移动到文件的末行 |
+
+g相对特殊，其移动光标的命令看起来凭空出现。StackExchange有相关的解释，相关大意翻译在了下方，更多信息请参看附录。
+
+> g类似“命名空间”(namespace)。设计vi时，有很多操作（比如去文件的开头/结尾，或者去特定某行）比较有用，因此非常必要为这些操作创建命令。
+> 
+> 但单键命令最多只有95个，这些命令的使用频率并没有高到需要分配单键命令。因此，g作为“命名空间”给这些命令提供了入口。与之相似的还有命令
+
+### 翻页
+
+翻页操作依靠Ctrl实现。
+
+| 命令    | 助记     | 作用         |
+| ------- | -------- | ------------ |
+| [Ctrl]f | forward  | 向上移动一页 |
+| [Ctrl]b | backward | 向下移动一页 |
+| [Ctrl]u | up       | 向上移动半页 |
+| [Ctrl]d | down     | 向下移动半页 |
+
+### 搜索并移动
+
+可以使用t/f来查找字符进而移动到指定位置。
+
+| 命令 | 助记   | 作用                                    |
+| ---- | ------ | --------------------------------------- |
+| t[c] | toward | 向后查找，将光标移动到字符c的前一个字符 |
+| f[c] | find   | 向后查找，将光标移动到字符c             |
+| T[c] | -      | 向前查找，将光标移动到字符c的前一个字符 |
+| F[c] | -      | 向前查找，将光标移动到字符c             |
+
+## 删除、复制与修改
+
+| 命令 | 助记   | 作用           |
+| ---- | ------ | -------------- |
+| x    | -      | 删除一个字符   |
+| d    | delete | 删除（需组合） |
+| y    | yank   | 复制（需组合） |
+| c    | change | 修改（需组合） |
+
+关于yank为何是复制，请参看附录，部分解释摘录如下。
+
+> yanking 是 Vim 中拷贝命令的名字。由于 "c" 已经被用于表示 change 了，所以拷贝 (copy) 就不能再用 "c" 了。但 "y" 还是可用的。把这个命令称为 "yanking" 是为了更容易记住 "y" 这个键。
+> 
+> （译者注: 这里只是把原文译出以作参考，"抽出" 文本毕竟是不妥的。）
+
+其中，修改操作实际上就是删除操作和进入编辑模式的组合。
+
+以下是一些常见的删除命令组合，复制命令与修改命令以此类推。
+
+| 命令      | 作用         |
+| --------- | ------------ |
+| dd        | 删除一行     |
+| dw        | 删除一个单词 |
+| :[m],[n]d | 删除[m,n]行  |
+| d^        | 删除到行首   |
+| d$        | 删除到行尾   |
+| dt[c]     | 删除到字符c  |
+
+需要注意的是，vim没有“剪切”命令。Vim中的删除类似Windows中的剪切，会将删除的内容复制到Vim的"剪切板"中。
+
+## 粘贴、撤销与恢复
+
+| 命令    | 助记     | 作用 |
+| ------- | -------- | ---- |
+| p       | paste    | 粘贴 |
+| u       | undo     | 撤销 |
+| [Ctrl]r | recovery | 恢复 |
+
+## 查找与替换
+
+### 查找
+
+| 命令       | 作用               |
+| ---------- | ------------------ |
+| /[pattern] | 向后匹配pattern    |
+| ?[pattern] | 向前匹配pattern    |
+| n          | 移动到下一个匹配项 |
+| N          | 移动到上一个匹配项 |
+
+其中pattern为正则表达式。
+
+### 替换
+
+基本格式：
+
+```
+:s/[pattern]/[substitute]/[option] 
+```
+
+s意为substitute，命令作用为将匹配pattern的内容替换为substitute，只会替换第一个匹配项，替换所有匹配项需添加g选项，g意为globally。
+
+以下是几个常用的组合：
+
+```
+1)  :s/pattern/substitute  
+    只会替换光标所在行的第一个匹配项  
+2)  :s/pattern/substitute/g  
+    替换光标所在行的所有匹配项
+3)  :[m],[n]s/pattern/substitute/g  
+    替换[m,n]行的所有匹配项
+4)  :%s/pattern/substitute/g  
+    替换全文的所有匹配项
+```
+
+## 视图模式常见用法
+
+### 批量注释
+
+```
+1)  [Ctrl]+v 进入竖选模式
+2)  选择范围
+3)  输入I
+4)  输入//
+5)  输入[ESC]
+```
+
+## 文件、多文件与多窗口
+
+### 文件基本操作
+
+vim保存文件的方式是将buffer中的内容写入文件。基本命令如下：
+
+| 命令 | 作用               |
+| ---- | ------------------ |
+| :w   | 保存               |
+| :q   | 退出               |
+| :q!  | 强制退出（不保存） |
+| :wq  | 保存并退出         |
+
+务必注意：[Ctrl]s不表示保存，而是表示冻结终端。输入此命令后终端界面冻结，但所有操作依然生效。[Ctrl]q可以退出此状态。
+
+### 多窗口
+
+| 命令           | 作用                           |
+| -------------- | ------------------------------ |
+| :split (:sp)   | 水平分割                       |
+| :new           | 水平分割                       |
+| :vsplit (:vsp) | 垂直分割                       |
+| :vnew          | 垂直分割                       |
+| [Ctrl]ww       | 切换窗口                       |
+| :wall          | 保存所有修改过的窗口           |
+| :qall          | 退出所有窗口                   |
+| :only          | 保留当前窗口，关闭其他所有窗口 |
+
+多窗口打开新文件：
+
+```
+:sp newtext
+:vsp newtext
+```
+
+### 多文件
+
+启动时打开多文件：
+
+```
+$ vim file1.txt file2.txt
+```
+
+启动后打开新文件：
+
+```
+:e newtext
+```
+
+切换与查看文件：
+
+| 命令        | 作用               |
+| ----------- | ------------------ |
+| :n          | 移到下一个文件     |
+| :N          | 移到上一个文件     |
+| ZZ          | 保存当前文件更改   |
+| :buffer     | 查看缓冲区内的文件 |
+| :buffer [n] | 切换到文件n        |
+
+使用`:e`打开的文件无法使用n或N命令切换，必须使用`:buffer`。
+
+## 附录 参考文献与链接
+ 1. [Vim documentation: vim_faq](https://vimdoc.sourceforge.net/htmldoc/vimfaq.html)
+ 2. [VIM Editor Commands](https://sites.radford.edu/~mhtay/CPSC120/VIM_Editor_Commands.htm)
+ 3. [为什么在 vi 的世界, 拷贝都使用 yank 这个词, 而不是 copy? - Dictionaryphile的回答 - 知乎](https://www.zhihu.com/question/68713673/answer/273169409)
+ 4. [vi - Wikipedia](https://en.wikipedia.org/wiki/Vi)
+ 5. [VIM User Manual](http://www.eandem.co.uk/mrw/vim/usr_doc/index.html)
+ 6. [Linux vi/vim | 菜鸟教程](https://www.runoob.com/linux/linux-vim.html)
+ 7. [What is the meaning of 'g'?](https://vi.stackexchange.com/questions/18744/what-is-the-meaning-of-g)
+ 8. [English mnemonics to Vim's shortcuts](https://stackoverflow.com/questions/7409134/english-mnemonics-to-vims-shortcuts)
+ 9. [如何使用Vim编辑器编辑多个文件](https://linux.cn/article-9629-1.html)
+ 10. 其他资料

@@ -1,0 +1,63 @@
+---
+id: git
+title: Git版本控制
+tags:
+  - git
+  - Getting started
+last_update:
+  date: 2020-01-31
+  author: Hoohan
+---
+
+## 前言
+
+写本文的目的:
+
+> 长时间不复习就会遗忘，好记性不如烂笔头。
+> 
+> 在git学习中，需要特别感谢[廖雪峰的教程](https:\\www.liaoxuefeng.com)。
+
+## Git基本操作
+
+### 本地Git用户名与邮箱
+**修改**  
+`git config --global user.name "Name"`   
+`git config --global user.email "email@example.com"`   
+针对单个项目去掉`--global`即可  
+**查看**  
+`git config user.name`  
+`git config user.email`  
+
+### 创建仓库（初始化）
+`git init`
+### 将文件添加到暂存区
+`git add <file>`
+### 提交文件到仓库并留下信息
+`git commit -m "<message>"`
+### 查看仓库状态
+`git status`
+### 查看特定文件修改状态
+`git diff <file>`
+### 查看记录
+查看仓库提交历史  
+`git log`  
+查看用户操作历史  
+`git reflog`  
+### 重新设定Git仓库指针
+`git reset -hard <commit id>`  
+### 删除一个文件
+`git rm <file>`
+### 创建RSA密钥
+`ssh-keygen -t rsa`
+在`用户\.ssh`文件夹中会生成公钥与私钥。
+`.pub`文件即为公钥，私钥需要妥善保管。
+### 在本地添加远程git仓库
+`git remote add origin <repository link>`
+其中，远程仓库的链接通常为`git@ <website> :<user name>/<repository name>.git`
+### 推送本地仓库所有内容
+`git push -u origin master`  
+如果目标仓库不是空的，则去掉`-u`  
+### 从远程库克隆
+`git clone <repository link>`
+### 从远程库拉取更新
+`git pull`

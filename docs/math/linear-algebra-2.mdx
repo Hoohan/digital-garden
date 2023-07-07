@@ -1,0 +1,207 @@
+---
+title: 线性代数2：消元、回代与矩阵乘法
+date: 2020-02-09 11:42:31
+---
+
+# 线性代数2：消元、回代与矩阵乘法
+
+## Introduction
+本页面内容均是从听课的笔记整理而来。不保证数学上的绝对准确，也就是均为个人理解。  
+如果正在阅读此文章的你有更好的想法或者更好的理解，欢迎你发邮件到<work@hoohan.cn>，期待与你交流！  
+**课程信息：**   
+威廉·吉尔伯特·斯特朗(William Gilbert Strang)教授的线性代数公开课。  
+[麻省理工公开课 线性代数 MIT 18.06 Linear Algebra, Spring 2005 中英双语字幕](https://www.bilibili.com/video/av15463995)  
+## Lecture 2: The Elimination, Back-Substitution and Matrix Multiplication  
+**第二课 消元、回代与矩阵乘法**  
+我们已经知道了通过线性组合解决方程组问题的基本思路，那么接下来就是通过这种思路求解的通用方法：消元与回代。  
+**消元**  
+有如下方程组： 
+$$
+x+2y+z=2\\
+3x+y+z=12\\
+4y+z=2
+$$
+此方程组矩阵形式的$A$矩阵为：  
+$$
+\left[
+    \begin{matrix}
+        1 & 2 & 1\\ 
+        3 & 8 & 1\\
+        0 & 4 & 1
+    \end{matrix}
+\right]
+$$
+消元可谓是现代科学计算中最普遍的运算，它的主要过程就是通过行之间的相减使矩阵变为上三角矩阵(upper triangular matrix, U)，说白了就是高中数学消元法的矩阵版本，以下是具体的步骤。  
+$$
+\left[
+    \begin{matrix}
+        1 & 2 & 1\\  
+        3 & 8 & 1\\
+        0 & 4 & 1
+    \end{matrix}
+\right]
+\rightarrow
+\left[
+    \begin{matrix}
+        1 & 2 & 1\\  
+        0 & 2 & -2\\
+        0 & 4 & 1
+    \end{matrix}
+\right]
+\rightarrow
+\left[
+    \begin{matrix}
+        1 & 2 & 1\\  
+        0 & 2 & -2\\
+        0 & 0 & 5
+    \end{matrix}
+\right]
+$$
+其中，在矩阵可逆的情况下，每行第一个非零的数就是该行的主元(pivot)。  
+需要注意的是，主元不能为0，如果某一行的主元为0，则需要进行行交换(row exchange)。  
+当行交换最终失效的时候，就意味着消元失败了。  
+**回代**  
+我们将向量$b$添加到上面的消元过程中，就得到了一系列的增广矩阵(argumented matrix)。  
+$$
+\left[
+    \begin{array}{ccc|c}
+        1 & 2 & 1 & 2\\  
+        3 & 8 & 1 & 12\\
+        0 & 4 & 1 & 2
+    \end{array}
+\right]
+\rightarrow
+\left[
+    \begin{array}{ccc|c}
+        1 & 2 & 1 & 2\\ 
+        0 & 2 & -2 & 6\\
+        0 & 4 & 1 & 2
+    \end{array}
+\right]
+\rightarrow
+\left[
+    \begin{array}{ccc|c}
+        1 & 2 & 1 & 2\\
+        0 & 2 & -2 & 6\\
+        0 & 0 & 5 & 10
+    \end{array}
+\right]
+$$
+$b$的最终结果记作$c$.
+回代就是从矩阵下方向上依次计算出各个变量，也就是解方程组$UX=c$.  
+**矩阵乘法与消元法的矩阵表示**  
+*The central idea of linear agerba is how these matrices work by rows as well as by columns.*  
+首先回忆一下上方说到的列操作：矩阵乘以向量就是矩阵的列的线性组合，也就是说矩阵乘以向量的结果仍然是个向量。  
+接下来我们谈一下行变换(row exchange)，行变换和列变换相似，是对于行的线性组合。  
+$$
+\left[
+    \begin{matrix}
+        1 & 5 & 7
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 2 & 3\\
+        4 & 5 & 6\\
+        7 & 8 & 9
+    \end{matrix}
+\right]
+=
+1\times row1+5\times row2+7\times row3
+$$
+由此可以看到，对列操作我们在矩阵右侧做乘法；对行操作，我们在矩阵左侧做乘法。  
+由上面的算法扩展，我们可以得到消元过程的矩阵表示法，消元法第一步的矩阵表示为：  
+$$
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\
+        -3 & 1 & 0\\
+        0 & 0 & 1
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 2 & 1\\ 
+        3 & 8 & 1\\
+        0 & 4 & 1
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        1 & 2 & 1\\
+        0 & 2 & -2\\
+        0 & 4 & 1
+    \end{matrix}
+\right]
+$$  
+其中最左侧的矩阵就叫做消元矩阵或者初等矩阵(elementary or elimination matrix)，记作$E$，又因为此矩阵消去了第二行第一列的元，进一步记作$E_{21}$.  
+在此我们引入两种矩阵：单位矩阵和置换矩阵。  
+**单位矩阵**(identity matrix,I)就是矩阵中的“数字1”，任何矩阵乘上单位矩阵都得到它本身。  
+$$
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\
+        0 & 1 & 0\\
+        0 & 0 & 1
+    \end{matrix}
+\right]
+$$
+**置换矩阵**(permutation matrix, P)用来做行交换与列交换。  
+实际上，交换单位阵的行和列就可以得到相应的置换矩阵。
+$$
+\left[
+    \begin{matrix}
+        0 & 1\\ 
+        1 & 0
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        a & b\\ 
+        c & d
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        c & d\\
+        a & b
+    \end{matrix}
+\right]
+$$
+接下来我们将消元的步骤放在一起：  
+$$E_{32}(E_{21}A)=U$$
+以下是关于矩阵乘法的重要事实。  
+1、矩阵乘法具有结合律。  
+$$E_{32}(E_{21}A)=(E_{32}E_{21})A$$
+2、矩阵乘法不具有交换律。
+$$AB\ne BA$$
+**矩阵的逆**  
+如何取消消元步骤呢？  
+我们需要找到这样一个矩阵，此矩阵乘以消元矩阵得到了单位阵，这样就实现了取消。  
+$$
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\
+        3 & 1 & 0\\
+        0 & 0 & 1
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\
+        -3 & 1 & 0\\
+        0 & 0 & 1
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        1 & 0 & 0\\
+        0 & 1 & 0\\
+        0 & 0 & 1
+    \end{matrix}
+\right]
+$$
+左侧矩阵就是逆矩阵，记作$E^{-1}$ (E inverse)。

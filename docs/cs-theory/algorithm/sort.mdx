@@ -1,0 +1,355 @@
+---
+id: sort
+title: 排序算法
+tags:
+  - sort
+  - algorithm
+---
+
+
+# 排序算法
+
+排序算法是计算机行业中最常见的一类算法。
+
+## 总览
+
+常见排序算法：
+
+- 冒泡排序（Bubble Sort）
+- 插入排序（Insertion Sort）
+- 希尔排序（Shell Sort）
+- 选择排序（Selection Sort）
+- 快速排序（Quick Sort）
+- 归并排序（Merge Sort）
+- 堆排序（Heap Sort）
+- 计数排序（Counting Sort）
+- 桶排序（Bucket Sort）
+- 基数排序（Radix Sort）
+
+## 快速排序
+
+### 简介
+
+快速排序又称划分交换排序 (partition-exchange sort)。因为其采用分治策略，又被称为分治法。
+
+其时间复杂度为O(nlogn)，不稳定。
+
+### 算法过程
+
+其核心思想是确定一个主元pivot，将整个序列划分为大于主元与小于主元两个子序列。此后对两个子序列进行同样的操作，直至子序列长度小于1。所有子序列计算完毕后，序列有序。
+
+示例代码如下，本代码采用递归实现。`quick`函数传入闭区间。
+
+```cpp
+template <typename T, typename Compare>
+void MyQsort<T, Compare>::quick(int left, int right) {
+    // 首先判断输入合法性
+    // 区间左端点等于右端点时，区间为空或者长度为1，认为有序，返回
+    // 区间左端点大于区间右端点时，不合法，返回
+    if (left >= right) {
+        return;
+    }
+
+    // 选择序列末尾为主元，同时备份主元
+    T pivot = vec_[right];
+
+    // 准备指针
+    // i为左侧子序列指针，j为右侧子序列指针
+    int i = left, j = right;
+
+    // 开始分治，结束条件为左侧指针已大于等于右侧指针
+    while (i < j) {
+        // 使用默认com_等价于 "vec_[i] < pivot"
+        // 找出第一个比主元大的左区间元素下标
+        while (i < j && com_(vec_[i], pivot)) ++i;
+        // 如果i还未越过j，则vec_[j]被vec_[i]覆盖
+        // 主元在上方已备份，此处利用了主元空出来的位置作元素移动
+        // 此后j前移一位，表明右侧区间已经新增一个元素
+        if (i < j) {
+            vec_[j--] = vec_[i];
+        }
+
+        // 使用默认com_等价于 "vec_[j] >= pivot"
+        // 找出第一个比主元小的右区间元素下标
+        while (i < j && !com_(vec_[j], pivot)) --j;
+        // 如果j还未越过i，则vec_[i]被vec_[j]覆盖
+        // 主元在上方已备份，此处逻辑同上
+        // 此后i后移一位，表明左侧区间已经新增一个元素
+        if (i < j) {
+            vec_[i++] = vec_[j];
+        }
+    }
+
+    // 将主元归位，此时i即指向主元应在位置
+    vec_[i] = pivot;
+
+    // 进入递归，解决子问题（对子序列排序）
+    this->quick(left, i - 1);
+    this->quick(i + 1, right);
+}
+```
+
+### 样例代码
+
+```cpp title="quick-sort.cpp"
+#include <iostream>
+#include <vector>
+
+using std::vector;
+
+template <typename T, typename Compare = std::less<T>>
+class MyQsort {
+public:
+    MyQsort(T* arr, size_t size, Compare com = Compare());
+    void quick(int left, int right);
+    void print();
+
+private:
+    vector<T> vec_;
+    Compare com_;
+};
+
+template <typename T, typename Compare>
+MyQsort<T, Compare>::MyQsort(T* arr, size_t size, Compare com)
+    : vec_(vector<T>(arr, arr + size + 1)), com_(com) {}
+
+template <typename T, typename Compare>
+void MyQsort<T, Compare>::quick(int left, int right) {
+    if (left >= right) {
+        // the length of interval is under zero, return
+        return;
+    }
+    // choose the vec_[right] as the pivot
+    T pivot = vec_[right];
+
+    // prepare the index
+    // i: left-idx, j: right-idx
+    int i = left, j = right;
+
+    // begin the partition
+    while (i < j) {
+        // euqals to "vec_[i] < pivot"
+        while (i < j && com_(vec_[i], pivot)) ++i;
+        if (i < j) {
+            vec_[j--] = vec_[i];
+        }
+
+        // equals to "vec_[j] >= pivot"
+        while (i < j && !com_(vec_[j], pivot)) --j;
+        if (i < j) vec_[i++] = vec_[j];
+    }
+
+    // place the pivot to right place
+    vec_[i] = pivot;
+
+    // recursive: solve the child problem
+    this->quick(left, i - 1);
+    this->quick(i + 1, right);
+}
+
+template <typename T, typename Compare>
+void MyQsort<T, Compare>::print() {
+    for (auto& it : vec_) {
+        std::cout << *&it << " ";
+    }
+    std::cout << std::endl;
+}
+
+int main() {
+    int a[] = {1, 3, 5, 7, 9, 1008611, 12580, -10000};
+    size_t s = sizeof(a) / sizeof(int);
+    MyQsort<int> mq(a, s-1);
+    std::cout << "Before sort: " << std::endl;
+    mq.print();
+
+    mq.quick(0, s-1);
+    std::cout << "After sort: " << std::endl;
+    mq.print();
+
+    return 0;
+}
+```
+
+## 堆排序
+
+### 简介
+
+堆排序是一种选择排序，其实现了原地排序，但不稳定。其最好、最坏、平均时间复杂度为O(nlogn)。
+
+堆排序利用了堆的如下性质：
+
+- 堆是一个完全二叉树
+  - 每个节点的值都大于等于或小于等于其子节点的值
+  - 每个节点的值都大于等于其子节点的堆称为大根堆，反之则称为小根堆
+  - 大根堆堆顶记录的是最大关键字，反之最小
+- 堆使用顺序存储，初始节点下标为`0`，某一节点下标为`n`，堆大小为`l`
+  - 左子节点下标为`2n+1`
+  - 右子节点下标为`2n+2`
+  - 最后一个有子节点的节点下标为`l/2-1`
+
+### 算法过程
+
+算法过程分为两个阶段。
+- 构造初始堆
+  - 在数组的基础上建立一个大（小）根堆
+  - 调整堆至大（小）根堆
+- 生成有序序列
+  - 堆首和堆尾互换，将堆的大小缩减1
+  - 调整堆至大（小）根堆
+
+示例代码如下：
+
+```cpp
+template <typename T, typename Compare>
+void HeapSort<T, Compare>::sort() {
+    // 从最后一个具有子节点的节点开始，向前逐个调整堆
+    // 其下界为每次调整的目标节点，到0（初始堆的根节点）为止
+    // 上界固定为区间终点，也就是顺序存储的堆的末尾
+    for (int i = length_ / 2 - 1; i >= 0; --i) {
+        maxHeapify(i, length_ - 1);
+    }
+    // 将堆的根节点与堆尾交换，堆大小-1
+    // 继续调整堆，重复，得到有序序列
+    for (int i = length_ - 1; i > 0; --i) {
+        std::swap(vec_[0], vec_[i]);
+        maxHeapify(0, i - 1);
+    }
+}
+```
+
+“调整堆”操作被包装成了一个函数`maxHeapify`，其参数是所需要调整的区间。这个区间可以认为是堆的子堆，这个子堆以区间下界为根节点。该操作可以使子堆调整为大根堆。
+
+调整堆的核心逻辑其实是将某一个节点与其两个子节点相比较，取最大值与根节点交换，然后向下不断调整直至符合堆的性质。
+
+具体逻辑如下：
+
+1. 得到子堆的根节点及其子节点下标
+2. 检查子节点下标是否在范围内
+3. 比较两个子节点，取较大的子节点为目标子节点
+4. 比较目标子节点与根节点
+5. 若子节点大于根节点，则交换两个节点，将子节点设置为下一轮调整的根节点，返回2
+6. 若子节点小于根节点，则调整结束
+
+示例代码如下：
+
+```cpp
+template <typename T, typename Compare>
+void HeapSort<T, Compare>::maxHeapify(size_t lower, size_t upper) {
+    // 区间根节点下标
+    size_t parent = lower;
+    // 目标子节点下标，初始时保存左子节点
+    size_t son = parent * 2 + 1; 
+    // 开始调整堆，其子节点下标必须在堆内，也就是其下标必须小于等于堆的最后一个节点下标
+    while (son <= upper) {
+        // 比较两个子节点，选择较大的那一个
+        if (son + 1 <= upper && vec_[son] < vec_[son + 1]) {
+            ++son;  // 右子节点较大，目标子节点下标改为右子节点
+        }
+        // 比较此时的根节点和最大的子节点
+        if (vec_[parent] > vec_[son]) {
+            // 如果根节点大于最大的子节点
+            // 则该堆已满足大根堆性质，调整结束，返回
+            return;
+        } else {
+            // 如果根节点小于最大的子节点，不满足堆的性质
+            // 交换两节点（根节点下沉、子节点上浮）
+            std::swap(vec_[parent], vec_[son]);
+            // 将下一次调整的目标根节点设置为子节点
+            parent = son;
+            // 计算得到下一次调整时的目标子节点
+            son = son * 2 + 1;
+        }
+    }
+}
+```
+
+### 样例代码
+
+```cpp title="heap-sort.cpp"
+#include <iostream>
+#include <vector>
+
+using std::vector;
+
+template <typename T, typename Compare = std::less<T>>
+class HeapSort {
+public:
+    HeapSort(T* arr, size_t length, Compare com = Compare());
+    void sort();
+    void print();
+
+private:
+    void maxHeapify(size_t lower, size_t upper);
+    vector<T> vec_;
+    size_t length_;
+    Compare com_;
+};
+
+template <typename T, typename Compare>
+HeapSort<T, Compare>::HeapSort(T* arr, size_t length, Compare com)
+    : vec_(vector<T>(arr, arr + length)), length_(length), com_(com) {}
+
+template <typename T, typename Compare>
+void HeapSort<T, Compare>::maxHeapify(size_t lower, size_t upper) {
+    // calculate the index of parent node, also its' childs
+    size_t parent = lower;
+    size_t son = parent * 2 + 1;  // left son
+    // do the max_heapity, the son's index must in the inetval
+    while (son <= upper) {
+        // choose the larger son
+        if (son + 1 <= upper && vec_[son] < vec_[son + 1]) {
+            ++son;  // choose the right son to swap
+        }
+        // compare the parent and max son
+        if (vec_[parent] > vec_[son]) {
+            // adjust over, the heap is a large root heap, jump out
+            return;
+        } else {
+            // swap, and begin to adjust the subtree
+            std::swap(vec_[parent], vec_[son]);
+            parent = son;
+            son = son * 2 + 1;
+        }
+    }
+}
+
+template <typename T, typename Compare>
+void HeapSort<T, Compare>::sort() {
+    // adjust the heap from the last parent node
+    for (int i = length_ / 2 - 1; i >= 0; --i) {
+        maxHeapify(i, length_ - 1);
+    }
+    // remove the root of the LRH and continue adjust
+    for (int i = length_ - 1; i > 0; --i) {
+        std::swap(vec_[0], vec_[i]);
+        maxHeapify(0, i - 1);
+    }
+}
+
+template <typename T, typename Compare>
+void HeapSort<T, Compare>::print() {
+    for (auto& it : vec_) {
+        std::cout << it << " ";
+    }
+    std::cout << std::endl;
+}
+
+int main() {
+    int a[] = {81, 6,  25, 96, 40, 63, 9,  26, 55, 73,
+               7,  49, 72, 78, 69, 64, 30, 77, 21, 25};
+    size_t length = sizeof(a) / sizeof(int);
+    std::cout << "length = " << length << std::endl;
+    HeapSort<int> heapsort(a, length);
+    std::cout << "Before sort: " << std::endl;
+    heapsort.print();
+
+    heapsort.sort();
+
+    std::cout << "After sort: " << std::endl;
+    heapsort.print();
+
+    return 0;
+}
+```
+
+注：LRH意为large root heap大根堆。

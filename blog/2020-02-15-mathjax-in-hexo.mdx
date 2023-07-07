@@ -1,0 +1,106 @@
+---
+slug: add-mathjax-to-hexo
+title: 在hexo中添加mathjax支持
+authors: [hoohan]
+tags: [hoohan, hexo, mathjax]
+---
+
+在hexo中添加mathjax支持有两种方式，分别为在markdown文件内添加和更换hexo渲染器。
+
+<!--truncate-->
+
+# 第一种方式：在文件内添加mathjax支持
+非常简单，复制以下代码在博客正文前即可。  
+```
+{% raw %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config(
+      {tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}}
+    );
+</script>
+{% endraw %}
+```
+需要注意的是，在clover主题中，以此方法添加的公式有两个问题：  
+
+- 渲染后每个公式下方会多一个空行，暂未找到解决方法。  
+- 公式内使用`\\`不可以换行，需要使用`\\\\`。  
+
+如果您有解决方法，欢迎一起[探讨交流](https://hoohan.cn/about/)！  
+# 第二种方式：更改hexo渲染器
+我们可以直接更改Hexo的渲染系统来达到使博客**原生支持**mathjax的效果。  
+共分五步。  
+**① 将Marked替换为Kramed**  
+在终端重定向到博客目录，使用如下命令：  
+```
+npm uninstall hexo-renderer-marked --save
+npm install hexo-renderer-kramed --save
+```
+此后，修改Kramed渲染文件。  
+打开博客根目录/node_modules/hexo-renderer-kramed/lib/renderer.js  
+```
+// Change inline math rule
+function formatText(text) {
+  // Fit kramed's rule: $$ + \1 + $$
+  return text.replace(/`\$(.*?)\$`/g, '$$$$$1$$$$');
+}
+
+//将上方代码更改为下方代码
+
+// Change inline math rule
+function formatText(text) {
+  // Fit kramed's rule: $$ + \1 + $$
+    return text;
+}
+```
+**② 将hexo-math替换为hexo-renderer-mathjax**  
+在刚才的终端中，使用如下命令，先卸载，后安装。  
+```
+npm uninstall hexo-math --save
+npm install hexo-renderer-mathjax --save
+```
+**③ 更新mathjax CDN**  
+打开博客根目录/node_modules/hexo-renderer-mathjax/mathjax.html  
+将最下方的mathjax的js链接替换为下方的链接，注意不要删掉html标签。
+```
+https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML
+```
+**④ 修改默认转义规则**  
+打开博客根目录/node_modules/kramed/lib/rules/inline.js  
+找到下面两行：
+```
+escape: /^\\([\\`*{}\[\]()#$+\-.!_>])/,
+//在第11行上下
+em: /^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/, 
+//在第21行上下
+```
+分别修改为  
+```
+escape: /^\\([`*\[\]()#$+\-.!_>])/,
+em: /^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,
+```
+**⑤ 在主题中开启mathjax**  
+在主题的配置文件(一般为_config.yml)中加入如下声明:
+```
+# MathJax Support
+mathjax:
+  enable: true
+  per_page: true
+```
+（可选）在此后还可以在博客markdown文件开头加入mathjax开关，双保险，例如：
+```
+---
+title: 在hexo中添加mathjax支持
+date: 2020-02-15 14:52:33
+tags: mathjax
+mathjax: ture
+---
+```
+
+# About
+本文参考了互联网上的两个教程，遵循开源协议精神，将其列在下方：
+- [@huojun](https://www.jianshu.com/u/e8537ffe74d6)撰写的[在hexo博客markdown文件中添加mathjax支持](https://www.jianshu.com/p/96a65a0bdb95)  
+- [@littlehaes](https://blog.csdn.net/littlehaes)撰写的[在hexo中使用mathjax的方法](https://blog.csdn.net/littlehaes/article/details/84370393)  
+
+本人在此对两位作者表示衷心的感谢！
+

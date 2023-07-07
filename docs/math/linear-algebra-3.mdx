@@ -1,0 +1,306 @@
+---
+title: 线性代数3：矩阵乘法与逆矩阵
+date: 2020-02-27 15:31:36
+---
+
+# 线性代数3：矩阵乘法与逆矩阵
+
+## Introduction
+本页面内容均是从听课的笔记整理而来。不保证数学上的绝对准确，也就是均为个人理解。  
+如果正在阅读此文章的你有更好的想法或者更好的理解，欢迎你发邮件到<work@hoohan.cn>，期待与你交流！  
+**课程信息：**   
+威廉·吉尔伯特·斯特朗(William Gilbert Strang)教授的线性代数公开课。  
+[麻省理工公开课 线性代数 MIT 18.06 Linear Algebra, Spring 2005 中英双语字幕](https://www.bilibili.com/video/av15463995)
+
+## Lecture 3: Matrix Multiplication, Inverses and Gauss-Jordan Elimination 
+**第三课 矩阵乘法、矩阵的逆与高斯-若尔当消元法求逆矩阵**  
+    
+----------
+  
+**Part1 矩阵乘法**  
+上一讲只是为矩阵的乘法和逆矩阵开了一个头，接下来我们详细讲述矩阵乘法。计算矩阵乘法有多种方式。  
+**① 常规方法(regular way)**  
+首先，有矩阵乘法
+$$AB=C$$
+我们用$C_{ij}$来定义$C$矩阵中第$i$行第$j$列的元素。  
+则有
+$$
+\begin{align}
+C_{34}= & (row \ 3 \ of \ A)\cdot(column \ 4 \ of \ B)\\
+= & a_{31}b_{14}+a_{32}b_{24}\cdots \\
+= & \sum_{k=1}^n{a_{3k}b_{k4}}
+\end{align}
+$$
+本质上，新矩阵的元素就是前一个矩阵对应行中的每个元素与后一个矩阵对应列中的每一个元素一一相乘后相加得来的。  
+由此我们引出矩阵AB相乘的两个条件：
+- A的列数必须和B的行数相等。
+- 由上一条可知，两个相乘的矩阵不一定必须是方阵。如果两个方阵相乘，其大小必须完全相等。   
+
+**② 列方法与行方法(column way & row way)**  
+接下来我们把目光转向整列和整行。  
+矩阵的乘法其实完全可以看作矩阵乘以向量。  
+首先来看**列方法**。  
+AB相乘可以看为A乘上B每一列的列向量。  
+一个矩阵乘以一个列向量的结果必然是一个列向量。    
+乘法最终得到的矩阵C其实就是矩阵A各列不同的线性组合拼到一起，矩阵B告诉了我们C中的各列是由什么样的线性组合得来的。  
+*此处建议观看Gilbert Strang教授的录像，非常浅显易懂。*   
+    
+理解了列方法，行方法异曲同工。  
+从行向量的角度来理解AB相乘，矩阵乘法就可以看做A每一行组成的行向量乘上矩阵B。  
+一个行向量乘上一个矩阵的结果必然是一个行向量。    
+C就是矩阵B各行不同的线性组合拼到一起，矩阵A告诉了我们C中的各行是由什么样的线性组合得来的。  
+  
+**③ 将矩阵拆分**  
+我们考虑两个简单的矩阵相乘：
+$$
+\left[
+    \begin{matrix}
+        2\\
+        3\\
+        4
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 6
+    \end{matrix}
+\right]
+$$
+我们可以很容易地得到结果
+$$
+\left[
+    \begin{matrix}
+        2\\
+        3\\
+        4
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 6
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        2 & 12\\
+        3 & 18\\
+        4 & 24
+    \end{matrix}
+\right]
+$$
+我们观察一下上面的计算过程，可以得出**一个行向量与一个列向量相乘的结果是一个全尺寸(full-sized)矩阵**。  
+那么我们进而可以得到另一种乘法的算法：将矩阵拆分。
+$$
+AB = sum \ of \ (cols. \ of \ A) \ × \ (rows \ of \ B) 
+$$
+具体过程即为
+$$
+\left[
+    \begin{matrix}
+        2 & 7\\
+        3 & 8\\
+        4 & 9
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 6\\
+        0 & 0
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        2\\
+        3\\
+        4
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        1 & 6
+    \end{matrix}
+\right]
++
+\left[
+    \begin{matrix}
+        7\\
+        8\\
+        9
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        0 & 0
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        2 & 12\\
+        3 & 18\\
+        4 & 24
+    \end{matrix}
+\right]
+$$
+  
+**③ 分块乘法(Block Multiplication)**
+此方法非常好理解，就是可以将矩阵分成很多的小矩阵，小矩阵可以看做大矩阵的元素，计算法则和普通矩阵乘法无异。
+  
+----------
+  
+**Part2 逆矩阵**  
+首先，一个矩阵要有逆，必须是可逆的(invertible)或者说非奇异的(non-singular)。  
+我们把$A$矩阵的逆记作$A^{-1}$，根据第二讲的内容，两者有下方的关系：
+$$
+A^{-1}A=I=AA^{-1}
+$$
+<center>A的逆与其自身相乘得到单位矩阵。</center>  
+
+需要注意的是，仅在方阵(square matrix)中，A的左逆与右逆相等。  
+首先我们先讨论矩阵$A$是奇异矩阵的情况。  
+有如下矩阵$A$：  
+$$
+A
+=
+\left[
+    \begin{matrix}
+        1 & 3\\
+        2 & 6
+    \end{matrix}
+\right]
+$$
+我们有可能找到一个矩阵使得$A^{-1}A=I$吗？  
+不可能。
+我们可以从两个角度来论证这个问题。  
+1. 我们从线性的角度来说，单位矩阵的某一列比如1/0不可能是矩阵$A$的列的线性组合。因为$A$矩阵中两个列向量是共线的，不可能组合出我们需要的单位阵的列。  
+2. 观察矩阵$A$，我们一定可以找到一个非零向量$x$使得$Ax=0$，这是矩阵$A$的特性决定的。如果$Ax=0$成立，那么$A^{-1}Ax=0$呢？这绝对是个灾难。
+
+我们也由此可以总结：**对于不可逆(non-invertable)矩阵，某些行或列的线性组合对整体毫无贡献**。  
+现在回到我们对于矩阵的逆的讨论，我们已经知道了什么是矩阵的逆，那么如何通过原矩阵得到此矩阵的逆矩阵呢？  
+我们首先按照上面矩阵乘法的算法将$AA^{-1}=I$拆开，设A矩阵是2×2的方阵:
+$$
+AA^{-1} =
+\left[
+    \begin{matrix}
+        1 & 3\\
+        2 & 7
+    \end{matrix}
+\right]
+\left[
+    \begin{matrix}
+        a & b\\
+        c & d
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        1 & 0\\
+        0 & 1
+    \end{matrix}
+\right]
+\\
+\Rightarrow
+A
+\left[
+    \begin{matrix}
+        a\\
+        c
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        1\\
+        0
+    \end{matrix}
+\right]
+ \ \ \ 
+A
+\left[
+    \begin{matrix}
+        b\\
+        d
+    \end{matrix}
+\right]
+=
+\left[
+    \begin{matrix}
+        0\\
+        1
+    \end{matrix}
+\right]
+$$
+仔细观察上面的两个式子，是不是感觉有些眼熟？他们其实就可以看作两个二元一次方程组。我们求逆矩阵，无非就是求出未知数abcd，解出这两个方程组就可以求出abcd。  
+这便是高斯(Gauss)的想法。  
+但是解两个方程组有些麻烦，有没有更简单的方法呢？  
+若尔当(Jordan)便来了。  
+**高斯-若尔当消元法(Gauss-Jordan Elimination)**  
+高斯-若尔当消元法的基本思路是一次性解两个方程组。  
+我们将上面的两个方程组合二为一就可以得到由$A$与$I$组成的增广矩阵，将这个增广矩阵进行消元操作，即可得到一个上三角矩阵和一个下三角矩阵。  
+$$
+\left[
+    \begin{array}{cc|cc}
+        1 & 3 & 1 & 0\\  
+        3 & 7 & 0 & 1
+    \end{array}
+\right]
+\rightarrow
+\left[
+    \begin{array}{cc|cc}
+        1 & 3 & 1 & 0\\  
+        0 & 1 & -2 & 1
+    \end{array}
+\right]
+$$
+这时还没有求得我们想要的结果，我们继续从下而上消元，使增广矩阵左侧变为单位阵
+$$
+\left[
+    \begin{array}{cc|cc}
+        1 & 3 & 1 & 0\\  
+        0 & 1 & -2 & 1
+    \end{array}
+\right]
+\rightarrow
+\left[
+    \begin{array}{cc|cc}
+        1 & 0 & 7 & 3\\  
+        0 & 1 & -2 & 1
+    \end{array}
+\right]
+$$
+此时，增广矩阵右侧就是我们要求的$A^{-1}$。  
+那么此种方法为什么有效呢？除了上方“解两个方程组”的思路外，我们来简单的从数学上证明一下。  
+我们写出上述消元过程的矩阵表达式：
+$$
+E[A|I]=[I|B]
+$$
+设B为我们最后求得的增广矩阵的右侧。  
+分拆一下就可以得到下面两个式子：  
+$$
+EA=I \ \ \Rightarrow \ \ E=A^{-1} \\
+EI=B \ \ \Rightarrow \ \ E=B
+$$
+也就是
+$$
+B=A^{-1} \\
+E[A|I]=[I|A^{-1}]
+$$
+这便是高斯-若尔当消元法。
+
+---------
+
+**AB的逆**  
+$$
+(AB)^{-1}=A^{-1}B^{-1}
+$$
+证明比较简单，在此略过，有意者可以观看原视频。  
+**A的转置的逆**
+$$
+AA^{-1}=I \\ \Rightarrow 
+(AA^{-1})^T=(A^{-1})^TA^T=I^T=I
+$$
+*The transpose of A inverse is the inverse of A transpose.*  
+A的逆的转置就是A的转置的逆。  
